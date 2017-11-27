@@ -1,0 +1,75 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: rmq
+spec:
+  serviceName: rmq
+  replicas: {{ .Values.replicaCount }}
+  volumeClaimTemplates:
+  - metadata:
+      name: rmq
+      annotations:
+        volume.beta.kubernetes.io/storage-class: "standard"
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 10Gi
+  template:
+    metadata:
+      labels:
+        app: rmq
+    spec:
+      containers:
+      - name: rmq
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+
+        lifecycle:
+          preStop:
+            exec:
+              command: ["rabbitmqctl", "stop"]
+
+        livenessProbe:
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 30
+          exec:
+            command: ["rabbitmqctl", "node_health_check"]
+
+        readinessProbe:
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          periodSeconds: 1
+          failureThreshold: 10
+          exec:
+            command: ["rabbitmqctl", "node_health_check"]
+
+        ports:
+        - containerPort: 4369
+        - containerPort: 5672
+        - containerPort: 15672
+        - containerPort: 25672
+
+        volumeMounts:
+          - mountPath: /var/lib/rabbitmq
+            name: rmq
+
+        env:
+          - name: CLUSTERED
+            value: "true"
+          - name: CLUSTER_WITH
+            value: "rmq-0"
+          - name: RABBITMQ_ERLANG_COOKIE
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq-config
+                key: erlang-cookie
+          - name: RABBITMQ_SERVICE_DOMAIN
+            value: "rmq.default.svc.cluster.local"
+{{ if eq .Values.environment "production" }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+
+{{ end }}

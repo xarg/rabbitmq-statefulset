@@ -1,0 +1,17 @@
+environment: staging
+replicaCount: 3
+image:
+  repository: gcr.io/your-project/rabbitmq
+  tag: 3.6.12
+
+resources:
+  requests:
+    memory: "100mi"
+    cpu: "1"
+
+env:
+
+#nodeSelector:
+#  cloud.google.com/gke-nodepool: rabbitmq-pool
+
+
