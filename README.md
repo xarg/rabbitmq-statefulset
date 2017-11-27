@@ -14,8 +14,9 @@ Caveats:
     gcloud docker -- push gcr.io/your-project/rabbitmq
 
 ### Install using helm
-
-    helm upgrade -i rmq --set environment=production .
+    
+    # First make sure you configure your chart values, etc.. to your own liking then:
+    helm upgrade -i rmq --set environment=production charts/rabbitmq/
     
 ### Check that you have them
 
