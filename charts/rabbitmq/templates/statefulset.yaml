@@ -20,6 +20,19 @@ spec:
       labels:
         app: rmq
     spec:
+      # prevents rmq pods running on the same nodes
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - rmq
+              topologyKey: kubernetes.io/hostname
       containers:
       - name: rmq
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -59,17 +72,16 @@ spec:
             value: "true"
           - name: CLUSTER_WITH
             value: "rmq-0"
-          - name: RABBITMQ_ERLANG_COOKIE
-            valueFrom:
-              secretKeyRef:
-                name: rabbitmq-config
-                key: erlang-cookie
           - name: RABBITMQ_SERVICE_DOMAIN
             value: "rmq.default.svc.cluster.local"
-{{ if eq .Values.environment "production" }}
+{{ if .Values.env }}
+{{ toYaml .Values.env | indent 10 }}
+{{ end }}
+{{ if .Values.resources }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
+{{ end }}
+{{ if .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.nodeSelector | indent 8 }}
-
 {{ end }}

@@ -4,14 +4,21 @@ image:
   repository: gcr.io/your-project/rabbitmq
   tag: 3.6.12
 
+env:
+  - name: RABBITMQ_ERLANG_COOKIE
+    value: set this to your own secret
+  - name: RABBITMQ_USERNAME
+    value: my_user
+  - name: RABBITMQ_PASSWORD
+    value: my_pass
+  - name: RABBITMQ_VHOST
+    value: my_vhost
+
 resources:
   requests:
-    memory: "100mi"
-    cpu: "1"
+    memory: 100Mi
+    cpu: 100m
 
-env:
-
+# The nodeSelector allows to select specific nodes for you RMQ cluster (better hardware for example)
 #nodeSelector:
 #  cloud.google.com/gke-nodepool: rabbitmq-pool
-
-
