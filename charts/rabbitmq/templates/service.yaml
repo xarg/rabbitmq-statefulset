@@ -6,16 +6,12 @@ spec:
   ports:
   - port: 4369
     name: rabbitmq-epmd
-    protocol: TCP
-    protocol: TCP
   - port: 5672
     name: rabbitmq-main
-    protocol: TCP
   - port: 15672
     name: rabbitmq-management
-    protocol: TCP
   - port: 25672
-    name: rabbitmq-node
+    name: rabbitmq-management-ssl
   clusterIP: None
   selector:
     app: rmq
